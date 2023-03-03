@@ -21,11 +21,23 @@ class GildedRose {
     // parallel processor if Item's
     Arrays.stream(items).parallel().forEach(item -> {
       switch (item.name) {
-        case AGED_BRIE -> updateAgedBrieItem(item);
-        case SULFURAS -> updateSulfurasItem(item);
-        case BACKSTAGE_PASSES -> updateBackstagePassesItem(item);
-        case CONJURED -> updateConjuredItem(item);
-        default -> updateNormalItem(item);
+        case AGED_BRIE -> {
+          item.sellIn--;
+          updateAgedBrieItem(item);
+        }
+        case SULFURAS -> item.quality = 80;
+        case BACKSTAGE_PASSES -> {
+          item.sellIn--;
+          updateBackstagePassesItem(item);
+        }
+        case CONJURED -> {
+          item.sellIn--;
+          updateConjuredItem(item);
+        }
+        default -> {
+          item.sellIn--;
+          updateNormalItem(item);
+        }
       }
     });
   }
@@ -35,18 +47,9 @@ class GildedRose {
    *
    * @param item the item
    */
-  private void updateConjuredItem(@NotNull Item item){
-    item.sellIn--;
-    if (item.quality > 0) {
-      if (item.sellIn >= 0) {
-        item.quality -= 2;
-      } else {
-        item.quality -= 4;
-      }
-      if(item.quality < 0){
-        item.quality = 0;
-      }
-    }
+  private void updateConjuredItem(@NotNull Item item) {
+    updateNormalItem(item);
+    updateNormalItem(item);
   }
 
   /**
@@ -55,15 +58,13 @@ class GildedRose {
    * @param item the item
    */
   private void updateNormalItem(@NotNull Item item) {
-    item.sellIn--;
     if (item.quality > 0) {
       if (item.sellIn >= 0) {
         item.quality--;
       } else {
-        if (item.quality < 2) {
+        item.quality -= 2;
+        if (item.quality < 0) {
           item.quality = 0;
-        } else {
-          item.quality -= 2;
         }
       }
     }
@@ -75,7 +76,6 @@ class GildedRose {
    * @param item the item
    */
   private void updateAgedBrieItem(@NotNull Item item) {
-    item.sellIn--;
     if (item.quality < 50) {
       item.quality++;
       // this part is in the code line 56, but not in the *Gilded Rose Requirements Specification*
@@ -86,21 +86,11 @@ class GildedRose {
   }
 
   /**
-   * Update 'Sulfuras, Hand of Ragnaros' Quality.
-   *
-   * @param item the item
-   */
-  private void updateSulfurasItem(@NotNull Item item) {
-    item.quality = 80;
-  }
-
-  /**
    * Update 'Backstage passes to a TAFKAL80ETC concert' Quality.
    *
    * @param item the item
    */
   private void updateBackstagePassesItem(@NotNull Item item) {
-    item.sellIn--;
     if (item.sellIn < 0) {
       item.quality = 0;
     } else {
